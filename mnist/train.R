@@ -1,44 +1,78 @@
+#!/usr/local/bin/Rscript
 # https://tensorflow.rstudio.com/tutorials/beginners/
 library(keras)
 
+get_dataset <- function() {
+    mnist <- dataset_mnist()
+    mnist$train$x <- mnist$train$x/255
+    mnist$test$x <- mnist$test$x/255
+    return (mnist)
+}
 
-mnist <- dataset_mnist()
-mnist$train$x <- mnist$train$x/255
-mnist$test$x <- mnist$test$x/255
+get_model <- function() {
+    model <- keras_model_sequential() %>% 
+    layer_flatten(input_shape = c(28, 28)) %>% 
+    layer_dense(units = 128, activation = "relu") %>% 
+    layer_dropout(0.2) %>% 
+    layer_dense(10, activation = "softmax")
 
+    model %>% 
+    compile(
+        loss = "sparse_categorical_crossentropy",
+        optimizer = "adam",
+        metrics = "accuracy"
+    )
 
-model <- keras_model_sequential() %>% 
-  layer_flatten(input_shape = c(28, 28)) %>% 
-  layer_dense(units = 128, activation = "relu") %>% 
-  layer_dropout(0.2) %>% 
-  layer_dense(10, activation = "softmax")
-
-print(summary(model))
-
-
-model %>% 
-  compile(
-    loss = "sparse_categorical_crossentropy",
-    optimizer = "adam",
-    metrics = "accuracy"
-  )
-
-model %>% 
-  fit(
-    x = mnist$train$x, y = mnist$train$y,
-    epochs = 5,
-    validation_split = 0.3,
-    verbose = 2
-  )
-
-predictions <- predict(model, mnist$test$x)
-print(head(predictions, 2))
-
-model %>% 
-  evaluate(mnist$test$x, mnist$test$y, verbose = 0)
+    return (model)
+}
 
 
-save_model_tf(object = model, filepath = "model")
+train_model <- function(dataset, model) {
+    model %>% 
+    fit(
+        x = dataset$train$x, y = dataset$train$y,
+        epochs = 5,
+        validation_split = 0.3,
+        verbose = 2
+    )
 
-reloaded_model <- load_model_tf("model")
-all.equal(predict(model, mnist$test$x), predict(reloaded_model, mnist$test$x))
+    return (model)
+}
+
+evaluate_model <- function(dataset, model) {
+    predictions <- predict(model, dataset$test$x)
+
+    model %>% 
+    evaluate(dataset$test$x, dataset$test$y, verbose = 0)
+}
+
+save_model <- function(filepath, model) {
+    save_model_tf(object = model, filepath = filepath)
+}
+
+log <- function(message) {
+    print(paste(Sys.time(), "*log*",message, sep=':'))
+}
+main <- function() {
+
+    log("Downloading dataset")
+    dataset <- get_dataset()
+
+    log("Building model")
+    model <- get_model()
+
+    log("Training model")
+    model <- train_model(dataset, model)
+
+    log("Saving model")
+    model_dir <- "models"
+    model_filepath <- paste(model_dir, "mnist", sep="/")
+    save_model(model_filepath, model)
+
+    log(paste("Saved model to", model_filepath))
+}
+
+
+if (!interactive()) {
+  main()
+}
