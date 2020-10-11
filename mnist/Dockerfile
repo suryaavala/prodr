@@ -1,6 +1,8 @@
 FROM rocker/ml:4.0.2
 
-COPY . .
+WORKDIR mnist
+
+COPY train.R train.R
 
 EXPOSE 8080
 
