@@ -21,13 +21,11 @@ jobs:
       - name: Train mnist tf
         run: make train-mnist-tf
 
-      # Deploy mnist tfx
-      - name: Deploy mnist tfx
-        run: make deploy-mnist-tfx
-
-      # Test Tfx deployment
-      - name: Get predictions tfx
-        run: make predict-mnist-tfx
+      # Deploy mnist tfx and get sample predict
+      - name: Deploy/Test mnist tfx
+        run: |
+          make deploy-mnist-tfx
+          make predict-mnist-tfx
 
       # Destroy Tfx deployment
       - name: Destroy tfx deployment
