@@ -22,5 +22,6 @@ jobs:
         run: |
           make train-mnist-tf
           make deploy-mnist-tfx
+          sleep 5
           make predict-mnist-tfx
           make destroy-mnist-tfx
