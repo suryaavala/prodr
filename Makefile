@@ -8,8 +8,12 @@ train-mnist-tf: ## trains mnist model and places it in models/mnist_tf
 deploy-mnist-tfx: ## deploys mnist locally using tfx; see predict-mnist-tfx, destroy-mnist-tfx also
 	docker run -p 8501:8501 --mount type=bind,source=$(CURDIR)/models/mnist_tf,target=/models/mnist/1 -e MODEL_NAME=mnist -itd --name="mnist_tfx" tensorflow/serving
 
-#TODO predict-mnist-tfx: ## sends a prediction request to mnist served by tfx
+predict-mnist-tfx: ## sends a prediction request to mnist served by tfx
+	curl --data "@./data/curl_data_tfx.json" -X POST http://localhost:8501/v1/models/mnist:predict
 
+destroy-mnist-tfx: ## destroys mnist local mnist deployment
+	docker stop mnist_tfx
+	docker rm mnist_tfx
 #
 # HELP
 #
