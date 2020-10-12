@@ -1,10 +1,12 @@
-FROM rocker/ml:4.0.2
+FROM rocker/ml:4.0.2 AS base
 
 WORKDIR mnist
 
-COPY train.R train.R
-
 EXPOSE 8080
+
+FROM base AS train
+
+COPY train.R train.R
 
 CMD [ "train.R", "--no-save" ]
 ENTRYPOINT ["/usr/local/bin/Rscript"]

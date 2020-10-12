@@ -66,7 +66,7 @@ main <- function() {
 
     log("Saving model")
     model_dir <- "models"
-    model_filepath <- paste(model_dir, "mnist", sep="/")
+    model_filepath <- paste(model_dir, "mnist_tf", sep="/")
     save_model(model_filepath, model)
 
     log(paste("Saved model to", model_filepath))

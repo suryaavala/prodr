@@ -1,12 +1,12 @@
 .PHONY: help train-mnist deploy-mnist-tfx predict-mnist-tfx
 .DEFAULT_GOAL := help
 
-train-mnist: ## trains mnist model and places it in models/mnist
-	docker build -t mnistr:latest .
+train-mnist-tf: ## trains mnist model and places it in models/mnist_tf
+	docker build --target train -t mnistr:latest .
 	docker run -it -v $(CURDIR)/models:/mnist/models mnistr:latest
 
-deploy-mnist-tfx: ## deploys mnist locally using tfx; see predict-mnist-tfx also
-	docker run -p 8501:8501 --mount type=bind,source=$(CURDIR)/models/mnist,target=/models/mnist/1 -e MODEL_NAME=mnist -it tensorflow/serving
+deploy-mnist-tfx: ## deploys mnist locally using tfx; see predict-mnist-tfx, destroy-mnist-tfx also
+	docker run -p 8501:8501 --mount type=bind,source=$(CURDIR)/models/mnist_tf,target=/models/mnist/1 -e MODEL_NAME=mnist -itd --name="mnist_tfx" tensorflow/serving
 
 #TODO predict-mnist-tfx: ## sends a prediction request to mnist served by tfx
 
