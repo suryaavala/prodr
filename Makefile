@@ -3,7 +3,7 @@
 
 train-mnist-tf: ## trains mnist model and places it in models/mnist_tf
 	docker build --target train -t mnistr:latest .
-	docker run -v $(CURDIR)/models:/mnist/models mnistr:latest
+	docker run -v $(CURDIR)/models:/mnist/models mnistr:latest train.R --tf 1 --modeldir ./models
 
 deploy-mnist-tfx: ## deploys mnist locally using tfx; see predict-mnist-tfx, destroy-mnist-tfx also
 	docker run -p 8501:8501 --mount type=bind,source=$(CURDIR)/models/mnist_tf,target=/models/mnist/1 -e MODEL_NAME=mnist -d --name="mnist_tfx" tensorflow/serving
