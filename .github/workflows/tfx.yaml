@@ -17,16 +17,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Build docker train image
-      - name: Train mnist tf
-        run: make train-mnist-tf
-
-      # Deploy mnist tfx and get sample predict
-      - name: Deploy/Test mnist tfx
+      # Build, Train, Deploy, Predict, Destroy TFX
+      - name: Test mnist TFX
         run: |
+          make train-mnist-tf
           make deploy-mnist-tfx
           make predict-mnist-tfx
-
-      # Destroy Tfx deployment
-      - name: Destroy tfx deployment
-        run: make destroy-mnist-tfx
+          make destroy-mnist-tfx
