@@ -21,3 +21,7 @@ jobs:
       - name: Test iris rf plumber
         run: |
           make train-iris-rf
+          make deploy-iris-plumb
+          sleep 5
+          make predict-iris-plumb
+          make destroy-iris-plumb
