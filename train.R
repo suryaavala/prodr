@@ -1,15 +1,24 @@
 #!/usr/local/bin/Rscript
 # https://tensorflow.rstudio.com/tutorials/beginners/
+# http://rischanlab.github.io/RandomForest.html
 library(keras)
+library(randomForest)
 
-get_dataset <- function() {
+get_mnist_dataset <- function() {
     mnist <- dataset_mnist()
     mnist$train$x <- mnist$train$x/255
     mnist$test$x <- mnist$test$x/255
     return (mnist)
 }
 
-get_tf_model <- function() {
+get_iris_data <- function() {
+    ind <- sample(2,nrow(iris),replace=TRUE,prob=c(0.7,0.3))
+    trainData <- iris[ind==1,]
+    # testData <- iris[ind==2,]
+    return (trainData)
+}
+
+get_mnist_model <- function() {
     model <- keras_model_sequential() %>% 
     layer_flatten(input_shape = c(28, 28)) %>% 
     layer_dense(units = 128, activation = "relu") %>% 
@@ -27,7 +36,7 @@ get_tf_model <- function() {
 }
 
 
-train_tf_model <- function(dataset, model) {
+train_mnist_model <- function(dataset, model) {
     model %>% 
     fit(
         x = dataset$train$x, y = dataset$train$y,
@@ -39,17 +48,30 @@ train_tf_model <- function(dataset, model) {
     return (model)
 }
 
-evaluate_tf_model <- function(dataset, model) {
+train_iris_model <- function(trainData) {
+    iris_rf <- randomForest(Species~.,data=trainData,ntree=100,proximity=TRUE)
+    return (iris_rf)
+}
+
+
+evaluate_mnist_model <- function(dataset, model) {
     predictions <- predict(model, dataset$test$x)
 
     model %>% 
     evaluate(dataset$test$x, dataset$test$y, verbose = 0)
 }
 
-save_tf_model <- function(model_dir, model) {
+save_mnist_model <- function(model_dir, model) {
     model_filepath <- paste(model_dir, "mnist_tf", sep="/")
     save_model_tf(object = model, filepath = model_filepath)
     return (model_filepath)
+}
+
+save_iris_model <- function(model_dir, model) {
+    model_filepath <- paste(model_dir, "iris_rf", sep="/")
+    model_file <- paste(model_filepath,  "iris_model.rds", sep = "/")
+    saveRDS(object = model, file = model_file)
+    return (model_file)
 }
 
 log <- function(message) {
@@ -57,25 +79,39 @@ log <- function(message) {
 }
 main <- function(tf, model_dir) {
 
-    log("Downloading dataset")
-    dataset <- get_dataset()
+    
 
     if (tf > 0) {
         log("Using tensorflow for training")
+
+        log("Downloading dataset")
+        dataset <- get_mnist_dataset()
+
         log("Building model")
-        model <- get_tf_model()
+        model <- get_mnist_model()
 
         log("Training model")
-        model <- train_tf_model(dataset, model)
+        model <- train_mnist_model(dataset, model)
 
         log("Saving model")
-        model_filepath <- save_tf_model(model_dir, model)
+        model_filepath <- save_mnist_model(model_dir, model)
 
         log(paste("Saved model to", model_filepath))
     }
     else {
-        # TODO
+        # WIP TODO
         log("Using random forest for training")
+
+        log("Downloading dataset")
+        trainData <- get_iris_data()
+
+        log("Training model")
+        model <- train_iris_model(trainData)
+
+        log("Saving model")
+        model_file <- save_iris_model(model_dir, model)
+
+        log(paste("Saved model to", model_file))
     }
 }
 

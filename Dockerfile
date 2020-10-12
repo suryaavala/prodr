@@ -1,11 +1,12 @@
 FROM rocker/ml:4.0.2 AS base
 
-WORKDIR mnist
+WORKDIR prodr
 
 EXPOSE 8080
 
 RUN install2.r --error \
-    argparser
+    argparser \
+    randomForest
 
 FROM base AS train
 
