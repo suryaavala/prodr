@@ -21,14 +21,14 @@ train-iris-rf: ## trains iris model and places it in models/iris_rf
 
 deploy-iris-plumb: ## deploys iris model locally using plumber; see predict-iris-plumb, destroy-mnist-plum also
 	docker build --target deploy -t iris-plumb:latest .
-	docker run -p 8080:8080 --mount type=bind,source=$(CURDIR)/models/iris_rf,target=/opt/ml/model/ -d --name="irir_plumb" iris-plumb:latest serve
+	docker run -p 8080:8080 --mount type=bind,source=$(CURDIR)/models/iris_rf,target=/opt/ml/model/ -d --name="iris_plumb" iris-plumb:latest serve
 
 predict-iris-plumb: ## sends a prediction request to iris served by plumber
 	curl --data "@./data/curl_data_plumb.json" --header 'Content-Type: application/json' -X POST http://localhost:8080/invocations
 
 destroy-iris-plumb: ## destroys iris local plumber deployment
-	docker stop irir_plumb
-	docker rm irir_plumb
+	docker stop iris_plumb
+	docker rm iris_plumb
 #
 # HELP
 #
