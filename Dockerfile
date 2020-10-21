@@ -28,4 +28,5 @@ COPY predict.R predict.R
 # This gets overridden by the model from s3 by sagemaker when deployed on sagemaker
 COPY ./models/iris_rf/iris_model.rds /opt/ml/model/iris_model.rds
 
+CMD ["serve"]
 ENTRYPOINT [ "/usr/local/bin/Rscript", "--no-save", "app.R" ] 
